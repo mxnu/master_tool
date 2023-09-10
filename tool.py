@@ -13,17 +13,17 @@ def main():
    args = parser.parse_args()
 
    # Validate arguments
-   if parser.format == OUTPUT_FORMAT.JSON.value:
-      if parser.prefix is None:
+   if args.format == OUTPUT_FORMAT.JSON.value:
+      if args.prefix is None:
          parser.error("JSON output requires a prefix")
       # Validate if output is directory
-      if os.path.isdir(parser.output):
-         parser.error("JSON output requires a file, not a directory")
-   elif parser.format == OUTPUT_FORMAT.TEXT.value:
-      if os.path.isdir(parser.output) and parser.prefix is None:
+      if not os.path.isdir(args.output):
+         parser.error("JSON output requires a directory, not a file")
+   elif args.format == OUTPUT_FORMAT.TEXT.value:
+      if os.path.isdir(args.output) and args.prefix is None:
          parser.error("Text output requires a prefix if output is a directory")
       else:
-         abspath = os.path.abspath(parser.output)
+         abspath = os.path.abspath(args.output)
          dirname = os.path.dirname(abspath)
          if not os.path.exists(dirname):
             parser.error("Directory does not exist")
@@ -33,7 +33,7 @@ def main():
    scannables = modules.getAllScannables()
    for scannable in scannables:
       scannable._debug_level = DEBUG_LEVEL(args.debug)
-      scannable._output_format = OUTPUT_FORMAT(args.output)
+      scannable._output_format = OUTPUT_FORMAT(args.format)
       if scannable.canRun():
          scannable.scan()
          res = scannable.export()
@@ -46,6 +46,9 @@ def main():
                with open(output_path, "a") as f:
                   f.write(scannable.name + "\n")
                   f.write(res + "\n")
+            else:
+               with open(f'{output_path}/{args.prefix}_{scannable.name}.txt', "w") as f:
+                  f.write(res)
 
 if __name__ == '__main__':
    main()
