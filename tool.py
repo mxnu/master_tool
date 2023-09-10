@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import modules
 from modules.enums import DEBUG_LEVEL
 from modules.enums import OUTPUT_FORMAT
